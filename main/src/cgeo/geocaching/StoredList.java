@@ -4,6 +4,7 @@ import cgeo.geocaching.activity.ActivityMixin;
 import cgeo.geocaching.utils.RunnableWithArgument;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -78,10 +79,6 @@ public final class StoredList {
         public void promptForListSelection(final int titleId, final RunnableWithArgument<Integer> runAfterwards, final boolean onlyConcreteLists, final int exceptListId, final String newListName) {
             final List<StoredList> lists = getSortedLists();
 
-            if (lists == null) {
-                return;
-            }
-
             if (exceptListId > StoredList.TEMPORARY_LIST_ID) {
                 StoredList exceptList = cgData.getList(exceptListId);
                 if (exceptList != null) {
@@ -122,13 +119,22 @@ public final class StoredList {
             builder.create().show();
         }
 
-        private static List<StoredList> getSortedLists() {
+        private static @NonNull
+        List<StoredList> getSortedLists() {
             final Collator collator = Collator.getInstance();
             final List<StoredList> lists = cgData.getLists();
             Collections.sort(lists, new Comparator<StoredList>() {
 
                 @Override
                 public int compare(StoredList lhs, StoredList rhs) {
+                    // have the standard list at the top
+                    if (lhs.id == STANDARD_LIST_ID) {
+                        return -1;
+                    }
+                    if (rhs.id == STANDARD_LIST_ID) {
+                        return 1;
+                    }
+                    // otherwise sort alphabetical
                     return collator.compare(lhs.getTitle(), rhs.getTitle());
                 }
             });

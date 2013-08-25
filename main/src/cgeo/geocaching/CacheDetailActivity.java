@@ -228,19 +228,23 @@ public class CacheDetailActivity extends AbstractViewPagerActivity<CacheDetailAc
             }
 
             if (uriHost.contains("geocaching.com")) {
-                geocode = uri.getQueryParameter("wp");
-                guid = uri.getQueryParameter("guid");
-
-                if (StringUtils.isNotBlank(geocode)) {
-                    geocode = geocode.toUpperCase(Locale.US);
-                    guid = null;
-                } else if (StringUtils.isNotBlank(guid)) {
-                    geocode = null;
-                    guid = guid.toLowerCase(Locale.US);
+                if (StringUtils.startsWith(uriPath, "/geocache/gc")) {
+                    geocode = StringUtils.substringBefore(uriPath.substring(10), "_").toUpperCase(Locale.US);
                 } else {
-                    showToast(res.getString(R.string.err_detail_open));
-                    finish();
-                    return;
+                    geocode = uri.getQueryParameter("wp");
+                    guid = uri.getQueryParameter("guid");
+
+                    if (StringUtils.isNotBlank(geocode)) {
+                        geocode = geocode.toUpperCase(Locale.US);
+                        guid = null;
+                    } else if (StringUtils.isNotBlank(guid)) {
+                        geocode = null;
+                        guid = guid.toLowerCase(Locale.US);
+                    } else {
+                        showToast(res.getString(R.string.err_detail_open));
+                        finish();
+                        return;
+                    }
                 }
             } else if (uriHost.contains("coord.info")) {
                 if (StringUtils.startsWith(uriPath, "/gc")) {
@@ -1275,7 +1279,6 @@ public class CacheDetailActivity extends AbstractViewPagerActivity<CacheDetailAc
             private Handler handler;
 
             public DropCacheThread(Handler handler) {
-                super();
                 this.handler = handler;
             }
 
@@ -2448,7 +2451,7 @@ public class CacheDetailActivity extends AbstractViewPagerActivity<CacheDetailAc
     }
 
     protected void storeCache(final int listId, final StoreCacheHandler storeCacheHandler) {
-        progress.show(CacheDetailActivity.this, res.getString(R.string.cache_dialog_offline_save_title), res.getString(R.string.cache_dialog_offline_save_message), true, storeCacheHandler.cancelMessage());
+        progress.show(this, res.getString(R.string.cache_dialog_offline_save_title), res.getString(R.string.cache_dialog_offline_save_message), true, storeCacheHandler.cancelMessage());
 
         if (storeThread != null) {
             storeThread.interrupt();

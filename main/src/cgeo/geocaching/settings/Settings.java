@@ -471,7 +471,7 @@ public final class Settings {
 
     /**
      * @return User selected date format on GC.com
-     * @see Login#gcCustomDateFormats
+     * @see Login#GC_CUSTOM_DATE_FORMATS
      */
     public static String getGcCustomDate() {
         return getString(R.string.pref_gccustomdate, null);
@@ -548,16 +548,9 @@ public final class Settings {
 
     static boolean getImperialUnitsDefault() {
         final String countryCode = Locale.getDefault().getCountry();
-        if ("US".equals(countryCode)) {
-            return true; // USA
-        }
-        if ("LR".equals(countryCode)) {
-            return true; // Liberia
-        }
-        if ("MM".equals(countryCode)) {
-            return true; // Burma
-        }
-        return false;
+        return "US".equals(countryCode)  // USA
+            || "LR".equals(countryCode)  // Liberia
+            || "MM".equals(countryCode); // Burma
     }
 
     public static boolean isLiveMap() {

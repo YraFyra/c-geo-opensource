@@ -24,9 +24,14 @@ class DistanceFilter extends AbstractFilter {
     @Override
     public boolean accepts(final Geocache cache) {
         final Geopoint currentPos = new Geopoint(geo.getLocation());
-        final float distance = currentPos.distanceTo(cache.getCoords());
-
-        return (distance >= minDistance) && (distance <= maxDistance);
+        final Geopoint coords = cache.getCoords();
+        if (coords == null) {
+            // If a cache has no coordinates, consider it to be out of range. It will
+            // happen with archived caches.
+            return false;
+        }
+        final float distance = currentPos.distanceTo(coords);
+        return distance >= minDistance && distance <= maxDistance;
     }
 
     public static class Factory implements IFilterFactory {
@@ -45,7 +50,7 @@ class DistanceFilter extends AbstractFilter {
                 else {
                     maxRange = Integer.MAX_VALUE;
                 }
-                final String range = maxRange == Integer.MAX_VALUE ? "> " + String.valueOf(minRange) : String.valueOf(minRange) + " - " + String.valueOf(maxRange);
+                final String range = maxRange == Integer.MAX_VALUE ? "> " + minRange : minRange + " - " + maxRange;
                 final String name = cgeoapplication.getInstance().getResources().getQuantityString(R.plurals.tts_kilometers, maxRange, range);
                 filters.add(new DistanceFilter(name, minRange, maxRange));
             }

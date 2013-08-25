@@ -22,7 +22,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech.Engine;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -134,7 +133,16 @@ public class CompassActivity extends AbstractActivity {
         setDestCoords();
         setCacheInfo();
 
-        geoDirHandler.updateAll();
+        // Force a refresh of location and direction when data is available.
+        final cgeoapplication app = cgeoapplication.getInstance();
+        final IGeoData geo = app.currentGeo();
+        if (geo != null) {
+            geoDirHandler.update(geo);
+        }
+        final Float dir = app.currentDirection();
+        if (dir != null) {
+            geoDirHandler.update(dir);
+        }
     }
 
     @Override
@@ -186,7 +194,7 @@ public class CompassActivity extends AbstractActivity {
                 finish();
                 return true;
             case R.id.menu_tts_start:
-                initTextToSpeech();
+                SpeechService.startService(this, dstCoords);
                 return true;
             case R.id.menu_tts_stop:
                 SpeechService.stopService(this);
@@ -207,21 +215,6 @@ public class CompassActivity extends AbstractActivity {
                 }
         }
         return false;
-    }
-
-    private void initTextToSpeech() {
-        Intent intent = new Intent(Engine.ACTION_CHECK_TTS_DATA);
-        startActivityForResult(intent, REQUEST_TTS_DATA_CHECK);
-    }
-
-    @Override
-    protected void onActivityResult(int request, int result, Intent data) {
-        if (request == REQUEST_TTS_DATA_CHECK && result == Engine.CHECK_VOICE_DATA_PASS) {
-            SpeechService.startService(this, dstCoords);
-        } else {
-            Log.i("TTS failed to start. Request: " + request + " result: " + result);
-            startActivity(new Intent(Engine.ACTION_INSTALL_TTS_DATA));
-        }
     }
 
     private void setTitle() {
