@@ -10,8 +10,15 @@ import android.widget.TextView;
  */
 public class UserActionsClickListener extends AbstractUserClickListener {
 
+    private final String name;
+
     public UserActionsClickListener(Geocache cache) {
         super(cache.supportsUserActions());
+    }
+
+    public UserActionsClickListener(String name) {
+        super(true);
+        this.name = name;
     }
 
     public UserActionsClickListener() {
@@ -20,6 +27,9 @@ public class UserActionsClickListener extends AbstractUserClickListener {
 
     @Override
     protected CharSequence getUserName(View view) {
+        if (name != null) {
+            return name;
+        }
         return ((TextView) view).getText().toString();
     }
 }

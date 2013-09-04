@@ -422,7 +422,7 @@ public class TrackableActivity extends AbstractViewPagerActivity<TrackableActivi
                         }
                     });
                 } else if (Trackable.SPOTTED_USER == trackable.getSpottedType()) {
-                    spotted.setOnClickListener(new UserActionsClickListener());
+                    spotted.setOnClickListener(new UserActionsClickListener(Html.fromHtml(trackable.getSpottedName()).toString()));
                 }
             }
 
